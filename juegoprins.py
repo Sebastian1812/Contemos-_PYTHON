@@ -1,3 +1,4 @@
+from sys import*
 from FS_button import *
 from FS_player import *
 
@@ -135,7 +136,7 @@ def leerArchivo():
 def juegomain(evento):
     global game_pause, game_over, game, game_restart, game_continuar, puntajes
     if not game_pause:
-        jugador = player.handle_event(root, fond_prins, evento, x,game_restart)
+        jugador = player.handle_event(root, fond_prins, evento, x, game_restart)
         saltjugador = jugador[0]
         game_over = jugador[1]
         meta = jugador[2]

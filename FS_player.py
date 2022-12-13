@@ -5,7 +5,6 @@ init()
 
 #V A R I A B L E S
 bg = 1
-xtotal = 0
 xbackground = 0
 n1 = 0
 n2 = 0
@@ -53,7 +52,6 @@ class Gato(sprite.Sprite):
         self.sheet = image.load("Imagenes/Gato/spriteSheet.png")
         self.sheet.set_clip(Rect(830, 0, 254, 200))
         self.image = self.sheet.subsurface(self.sheet.get_clip())
-        self.rect = self.image.get_rect()
         self.rect = self.image.get_rect()
         self.rect.topleft = position
         self.resul = 1
