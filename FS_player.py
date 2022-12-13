@@ -110,6 +110,7 @@ class Gato(sprite.Sprite):
     def movimientos(self, x):
         global xbackground, bg
         if self.resul < 50:
+            mixer.Sound.play(saltoson)
             self.clip(self.right_states)
             self.rect.x += 200
             self.resul += 1
@@ -164,7 +165,6 @@ class Gato(sprite.Sprite):
             if not self.buton:
                 self.buton = True
                 if evento.key == K_RIGHT:
-                    mixer.Sound.play(saltoson)
                     self.movimientos(x)
                 elif evento.key == K_ESCAPE:
                     quit()
