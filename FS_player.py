@@ -1,6 +1,5 @@
 from pygame import *
 from random import *
-from FS_button import *
 
 init()
 
@@ -11,14 +10,20 @@ xbackground = 0
 n1 = 0
 n2 = 0
 res = 0
-meta = 50
+meta =50
+
+#S O N I D O
+mixer.init()
+saltoson = mixer.Sound("Musica/Salto_sonido.wav")
+correcto = mixer.Sound("Musica/correcto.wav")
+incorrecto = mixer.Sound("Musica/incorrecto.wav")
 
 # C O L O R E S
 naranja = Color(212, 139, 11)
 negro = Color(0, 0, 0)
 
 # F U E N T E S
-font1 = font.SysFont('Fuentes/Golden Age Shad', 80)
+font1 = font.Font('Fuentes/Golden Age Shad.ttf', 60)
 
 # I M A G E N E S
 life_bar = [image.load("Imagenes/Gato/Lifes/0.png"),
@@ -30,14 +35,15 @@ life_bar = [image.load("Imagenes/Gato/Lifes/0.png"),
             image.load("Imagenes/Gato/Lifes/6.png"),
             image.load("Imagenes/Gato/Lifes/7.png")]
 
+
 def resultado(n1, n2, resul):
     check = n1 + n2
     puntos = 10
     if resul == check:
-        print("CORRECTO")
+        mixer.Sound.play(correcto)
         return True
     else:
-        print("INCORRECTO")
+        mixer.Sound.play(incorrecto)
         return False
 
 
@@ -52,7 +58,7 @@ class Gato(sprite.Sprite):
         self.rect.topleft = position
         self.resul = 1
         self.puntos = 0
-        self.vidas = 3
+        self.vidas = 7
         self.game_over = False
         self.game_restart = False
         self.problem = True
@@ -91,19 +97,19 @@ class Gato(sprite.Sprite):
         if band == 0:
             self.vidas -= 1
             if self.vidas == 0:
-                self.puntos = 0
                 self.game_over = True
         elif band == 1:
-            self.vidas = 3
+            self.vidas = 7
+            self.puntos = 0
             res = 0
         elif band == 2:
             self.puntos = self.puntos*self.vidas
             res = 0
 
 
-    def movimientos(self, direction, x):
+    def movimientos(self, x):
         global xbackground, bg
-        if direction == "RIGHT":
+        if self.resul < 50:
             self.clip(self.right_states)
             self.rect.x += 200
             self.resul += 1
@@ -113,20 +119,11 @@ class Gato(sprite.Sprite):
                 bg += 1
             if xbackground >= 1892:
                 xbackground = x
-        elif direction == "LEFT":
-            self.clip(self.right_states)
-            self.rect.x += 200
-            self.resul += 1
-            xbackground += 200
-            if self.rect.x >= 946:
-                self.rect.x = x
-                bg += 1
-            if xbackground >= 1892:
-                xbackground = x
-
 
     def handle_event(self, root, f1, evento, x, band):
         global xbackground, bg, fond, n1, n2, res
+
+        #REVISA COMO VOLVERA A JUGAR EL USUARIO
         if band == 1:
             self.retry(x, root, 1)
             self.game_over = False
@@ -134,7 +131,7 @@ class Gato(sprite.Sprite):
             self.retry(x, root, 2)
             self.game_over = False
 
-
+        # CAMBIO DE ESCENARIO
         if xbackground < 948:
             root.blit(f1[0], (0, 0))
         else:
@@ -156,50 +153,39 @@ class Gato(sprite.Sprite):
                font1.render(str(self.resul), 1, negro)]
         points = font1.render(str(self.puntos), 1, negro)
 
+        # IMPRIMIR TEXTOS A LA VENTANA
         root.blit(txt[0], (270, 315))
         root.blit(txt[1], (543, 315))
         root.blit(txt[2], (815, 315))
-        root.blit(points, (200, 50))
+        root.blit(points, (50, 50))
 
+        # MOVIMIENTO DE LAS FLECHAS
         if evento.type == KEYDOWN and self.buton == False:
-            if evento.key == K_RETURN:
-                if resultado(n1, n2, self.resul):
-                    self.puntos += 10
-                    res = self.resul
-                    if res == meta:
-                        self.game_over = True
-                    else:
-                        self.problem = True
-                else:
-                    self.retry(x, root, 0)
-
-            if self.buton == False:
+            if not self.buton:
                 self.buton = True
                 if evento.key == K_RIGHT:
-                    self.movimientos("RIGHT", x)
-                elif evento.key == K_LEFT:
-                    self.movimientos("LEFT", x)
+                    mixer.Sound.play(saltoson)
+                    self.movimientos(x)
                 elif evento.key == K_ESCAPE:
                     quit()
                     exit()
 
-            """elif evento.key == pygame.K_LEFT:
-                self.clip(self.right_states)
-                self.rect.x -= 183
-                xbackground -= 183
-                if self.rect.x < x:
-                    self.rect.x = x"""
+                elif evento.key == K_RETURN:
+                    if resultado(n1, n2, self.resul):
+                        self.puntos += 10
+                        res = self.resul
+                        if res == meta:
+                            self.game_over = True
+                        else:
+                            self.problem = True
+                    else:
+                        self.retry(x, root, 0)
 
-            # print(self.rect.x)
 
         if evento.type == KEYUP:
             if evento.key == K_RIGHT:
                 self.clip(self.right_states[0])
-                self.buton = False
-            elif evento.key == K_RETURN:
-                self.buton = False
-            """elif evento.key == pygame.K_LEFT:
-                self.clip(self.right_states[0])"""
+            self.buton = False
 
         self.image = self.sheet.subsurface(self.sheet.get_clip())
 
